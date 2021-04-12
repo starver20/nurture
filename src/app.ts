@@ -4,6 +4,7 @@ import { adminRouter } from './routes/admin';
 import { userRouter } from './routes/user';
 
 const app = express();
+app.use(express.json());
 
 try {
   mongoose.connect(
