@@ -8,7 +8,7 @@ import jwt from 'jsonwebtoken';
 const signup = async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
   if (!name || !email || !password) {
-    return res.status(400).send();
+    return res.status(400).send({ msg: 'name, email or password missing' });
   }
 
   const hashed = await bcrypt.hash(password, 10);
@@ -27,17 +27,17 @@ const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).send();
+    return res.status(400).send({ msg: 'email or password missing' });
   }
 
   const user = await User.findOne({ email });
   if (!user) {
-    return res.status(401).send('mail');
+    return res.status(401).send({ msg: 'incorrect email' });
   }
 
   const match = await bcrypt.compare(password, user.password);
   if (!match) {
-    return res.status(401).send('password');
+    return res.status(401).send({ msg: 'incorrect password' });
   }
 
   const token = jwt.sign({ name: user.name, userId: user.id }, 'secrettoken', {
@@ -57,12 +57,12 @@ const bookCall = async (req: Request, res: Response) => {
 
   const user = await User.findById(userId);
   if (!user) {
-    return res.status(400).send('user');
+    return res.status(400).send({ msg: 'incorrect userId' });
   }
 
   const advisor = await Advisor.findById(advisorId);
   if (!advisor) {
-    return res.status(400).send('advisor');
+    return res.status(400).send({ msg: 'incorrect advisorId' });
   }
 
   let updatedAdvisor = [...user.bookedAdvisor];
@@ -79,7 +79,7 @@ const getBookedCalls = async (req: Request, res: Response) => {
 
   let user = await User.findById(userId).populate('bookedAdvisor.advisor');
   if (!user) {
-    return res.status(400).send();
+    return res.status(400).send({ msg: 'user not found' });
   }
   console.log(user.bookedAdvisor);
   res.send(user.bookedAdvisor);
