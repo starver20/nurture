@@ -11,7 +11,6 @@ router.get('/:userId/advisor', userController.getAdvisor);
 
 router.post('/:userId/advisor/:advisorId', userController.bookCall);
 
-router.get('/:userId/advisor/booking', (req: Request, res: Response) => {
-  res.send({ name: 'amar' });
-});
+router.get('/:userId/advisor/booking', userController.getBookedCalls);
+
 export { router as userRouter };

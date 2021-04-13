@@ -1,5 +1,4 @@
-import mongoose from 'mongoose';
-import { Advisor } from './advisor';
+import mongoose, { Schema } from 'mongoose';
 
 interface userAttrs {
   name: string;
@@ -11,7 +10,7 @@ interface userDoc extends mongoose.Document {
   name: string;
   email: string;
   password: string;
-  booked_advisor: { advisorId: string }[];
+  bookedAdvisor: { advisor: mongoose.Schema.Types.ObjectId; date: string }[];
 }
 
 interface userModel extends mongoose.Model<userDoc> {
@@ -32,9 +31,15 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    booked_advisor: [
+    bookedAdvisor: [
       {
-        advisorId: String,
+        advisor: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Advisor',
+        },
+        date: {
+          type: String,
+        },
       },
     ],
   },
@@ -44,6 +49,8 @@ const userSchema = new mongoose.Schema(
         ret.id = ret._id;
         delete ret._id;
         delete ret.__v;
+        ret.bookedAdvisor.id = ret.bookedAdvisor._id;
+        delete ret.bookedAdvisor._id;
       },
     },
   }

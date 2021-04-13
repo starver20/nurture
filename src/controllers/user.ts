@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { User } from '../models/user';
 import { Advisor } from '../models/advisor';
+import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
@@ -52,21 +53,36 @@ const getAdvisor = async (req: Request, res: Response) => {
 
 const bookCall = async (req: Request, res: Response) => {
   const { userId, advisorId } = req.params;
+  const date = req.body.date;
 
   const user = await User.findById(userId);
   if (!user) {
-    return res.status(401).send('user');
+    return res.status(400).send('user');
   }
 
   const advisor = await Advisor.findById(advisorId);
   if (!advisor) {
-    return res.status(401).send('advisor');
+    return res.status(400).send('advisor');
   }
 
-  user.booked_advisor.push({ advisorId });
+  let updatedAdvisor = [...user.bookedAdvisor];
+  updatedAdvisor.push({ advisor: advisor.id, date: date });
 
-  console.log(user.booked_advisor);
-  res.send(user.booked_advisor);
+  user.bookedAdvisor = updatedAdvisor;
+  user.save();
+
+  res.status(200).send();
 };
 
-export { signup, login, getAdvisor, bookCall };
+const getBookedCalls = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+
+  let user = await User.findById(userId).populate('bookedAdvisor.advisor');
+  if (!user) {
+    return res.status(400).send();
+  }
+  console.log(user.bookedAdvisor);
+  res.send(user.bookedAdvisor);
+};
+
+export { signup, login, getAdvisor, bookCall, getBookedCalls };
