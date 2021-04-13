@@ -14,16 +14,27 @@ interface advisorModel extends mongoose.Model<advisorDoc> {
   build(attrs: advisorAttrs): advisorDoc;
 }
 
-const advisorSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
+const advisorSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    photoURL: {
+      type: String,
+      required: true,
+    },
   },
-  photoURL: {
-    type: String,
-    required: true,
-  },
-});
+  {
+    toJSON: {
+      transform(doc, ret) {
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.__v;
+      },
+    },
+  }
+);
 
 advisorSchema.statics.build = (attrs: advisorAttrs) => {
   return new Advisor(attrs);
